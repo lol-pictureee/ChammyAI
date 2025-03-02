@@ -1,0 +1,4 @@
+###
+
+GET https://segmind-sd-models.s3.amazonaws.com/display_images/faceswapv2_target.jpg
+Content-Type: application/json

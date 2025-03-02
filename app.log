@@ -1,0 +1,3 @@
+{"time":"2025-02-22 01:35:06","level":"INFO","source":{"function":"bot_tg/telegramBot.Run_bot","file":"C:/Users/Denis/GolandProjects/bot_tg/telegramBot/bot.go","line":29},"msg":"Авторизован","username":"ChammyPainter_bot"}
+{"time":"2025-02-22 01:35:49","level":"INFO","source":{"function":"bot_tg/telegramBot.Run_bot","file":"C:/Users/Denis/GolandProjects/bot_tg/telegramBot/bot.go","line":29},"msg":"Авторизован","username":"ChammyPainter_bot"}
+{"time":"2025-02-22 01:39:23","level":"INFO","source":{"function":"bot_tg/telegramBot.Run_bot","file":"C:/Users/Denis/GolandProjects/bot_tg/telegramBot/bot.go","line":29},"msg":"Авторизован","username":"ChammyPainter_bot"}
