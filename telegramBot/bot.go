@@ -3,7 +3,6 @@ package telegramBot
 import (
 	"bot_tg/api/fusebrain"
 	"bot_tg/api/nicefish"
-	"bot_tg/api/quotes"
 	"bot_tg/envhandler"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -163,12 +162,12 @@ func Run_bot() {
 						//photo := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FilePath(imagePath))
 						//resultImagePath := "output_image.jpeg" // ---> в папку того чат ID, от которого запрос
 						photo := tgbotapi.NewPhoto(update.Message.Chat.ID, tgbotapi.FilePath(filename))
-						quote, errGetQuote := quotes.GetQuote()
-						if errGetQuote != nil {
-							fmt.Println(errGetQuote)
-							return
-						}
-						photo.Caption = quote
+						//quote, errGetQuote := quotes.GetQuote()
+						//if errGetQuote != nil {
+						//	fmt.Println(errGetQuote)
+						//	return
+						//}
+						//photo.Caption = quote
 
 						_, errSend = bot.Send(photo)
 						if errSend != nil {

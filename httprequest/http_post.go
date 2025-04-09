@@ -13,13 +13,11 @@ func HttpPost(url string, data1 string, data2 string, headers map[string]string)
 	var req *http.Request
 	var err error
 
-	// Проверяем необходимость создания multipart/form-data
 	if headers["Content-Type"] == "multipart/form-data" {
 		// Создаем временный буфер для multipart тела
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
 
-		// Добавляем первый файл (data1)
 		if data1 != "" {
 			filePart1, err := writer.CreateFormFile("file1", "file1.jpg") // "file1" - имя поля формы
 			if err != nil {
@@ -33,7 +31,6 @@ func HttpPost(url string, data1 string, data2 string, headers map[string]string)
 			filePart1.Write(fileData1)
 		}
 
-		// Добавляем второй файл (data2)
 		if data2 != "" {
 			filePart2, err := writer.CreateFormFile("file2", "file2.jpg") // "file2" - имя поля формы
 			if err != nil {
@@ -47,19 +44,16 @@ func HttpPost(url string, data1 string, data2 string, headers map[string]string)
 			filePart2.Write(fileData2)
 		}
 
-		// Закрываем writer для получения boundary
 		writer.Close()
 
-		// Создаем запрос с multipart телом
 		req, err = http.NewRequest("POST", url, body)
 		if err != nil {
 			return nil, err
 		}
 
-		// Устанавливаем правильный Content-Type с boundary
 		req.Header.Set("Content-Type", writer.FormDataContentType())
 	} else {
-		// Обычный запрос с текстовым телом
+
 		req, err = http.NewRequest("POST", url, bytes.NewBufferString(data1)) // data1 используется как текстовое тело
 		if err != nil {
 			return nil, err
@@ -73,20 +67,17 @@ func HttpPost(url string, data1 string, data2 string, headers map[string]string)
 		}
 	}
 
-	// Добавляем остальные заголовки
 	for key, value := range headers {
 		if key != "Content-Type" { // Content-Type уже установлен
 			req.Header.Set(key, value)
 		}
 	}
 
-	// Загружаем конфигурацию
 	cfg, errEnv := envhandler.LoadConfig()
 	if errEnv != nil {
 		return nil, fmt.Errorf("ошибка загрузки конфигурации: %w", errEnv)
 	}
 
-	// Создаем куки
 	cookies := []*http.Cookie{
 		{
 			Name:  "user_id",
@@ -102,7 +93,7 @@ func HttpPost(url string, data1 string, data2 string, headers map[string]string)
 		},
 		{
 			Name:  "twk_uuid_66f0cb3de5982d6c7bb2f3cb",
-			Value: cfg.TwlUuid, // Убедитесь, что это поле существует в конфигурации
+			Value: cfg.TwlUuid,
 		},
 	}
 

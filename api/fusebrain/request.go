@@ -30,7 +30,7 @@ func Request(prompt string, userID string) (string, error) {
 		return "", fmt.Errorf("ошибка генерации изображения: %w", err) // Возвращаем ошибку
 	}
 
-	images, err := api.CheckGeneration(uuidApi, 15, 10*time.Second)
+	images, err := api.CheckGeneration(uuidApi, 25, 10*time.Second)
 	if err != nil {
 		return "", fmt.Errorf("ошибка проверки генерации: %w", err) // Возвращаем ошибку
 	}

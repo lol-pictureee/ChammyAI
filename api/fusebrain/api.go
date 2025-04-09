@@ -23,10 +23,12 @@ type GenerateResponse struct {
 }
 
 type StatusResponse struct {
-	Status  string   `json:"status"`
-	Images  []string `json:"images"`
-	Error   string   `json:"error"`
-	Message string   `json:"message"`
+	Status string `json:"status"`
+	Error  string `json:"errorDescription"`
+	Result struct {
+		Files    []string `json:"files"`
+		Censored bool     `json:"censored"`
+	} `json:"result"`
 }
 
 func NewText2ImageAPI(url, apiKey, apiSecret string) *Text2ImageAPI {
@@ -38,10 +40,10 @@ func NewText2ImageAPI(url, apiKey, apiSecret string) *Text2ImageAPI {
 	}
 }
 
-func (api *Text2ImageAPI) GetModel() (int, error) {
-	req, err := http.NewRequest("GET", api.URL+"key/api/v1/models", nil)
+func (api *Text2ImageAPI) GetModel() (string, error) {
+	req, err := http.NewRequest("GET", api.URL+"key/api/v1/pipelines", nil)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 
 	req.Header.Set("X-Key", "Key "+api.APIKey)
@@ -49,25 +51,25 @@ func (api *Text2ImageAPI) GetModel() (int, error) {
 
 	resp, err := api.Client.Do(req)
 	if err != nil {
-		return 0, err
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	var models []struct {
-		ID int `json:"id"`
+		ID string `json:"id"`
 	}
 	if err := json.NewDecoder(resp.Body).Decode(&models); err != nil {
-		return 0, err
+		return "", err
 	}
 
 	if len(models) == 0 {
-		return 0, fmt.Errorf("no models available")
+		return "", fmt.Errorf("no models available")
 	}
 
 	return models[0].ID, nil
 }
 
-func (api *Text2ImageAPI) Generate(prompt string, model int, images, width, height int) (string, error) {
+func (api *Text2ImageAPI) Generate(prompt string, model string, images, width, height int) (string, error) {
 	params := map[string]interface{}{
 		"type":      "GENERATE",
 		"numImages": images,
@@ -95,10 +97,10 @@ func (api *Text2ImageAPI) Generate(prompt string, model int, images, width, heig
 	}
 	paramsPart.Write(paramsJSON)
 
-	writer.WriteField("model_id", fmt.Sprintf("%d", model))
+	writer.WriteField("pipeline_id", fmt.Sprintf("%s", model))
 	writer.Close()
 
-	req, err := http.NewRequest("POST", api.URL+"key/api/v1/text2image/run", body)
+	req, err := http.NewRequest("POST", api.URL+"key/api/v1/pipeline/run", body)
 	if err != nil {
 		return "", err
 	}
@@ -126,7 +128,7 @@ func (api *Text2ImageAPI) Generate(prompt string, model int, images, width, heig
 }
 
 func (api *Text2ImageAPI) CheckGeneration(requestID string, attempts int, delay time.Duration) ([]string, error) {
-	url := api.URL + "key/api/v1/text2image/status/" + requestID
+	url := api.URL + "key/api/v1/pipeline/status/" + requestID
 
 	for i := 0; i < attempts; i++ {
 		req, err := http.NewRequest("GET", url, nil)
@@ -151,9 +153,9 @@ func (api *Text2ImageAPI) CheckGeneration(requestID string, attempts int, delay 
 
 		switch status.Status {
 		case "DONE":
-			return status.Images, nil
+			return status.Result.Files, nil
 		case "FAIL":
-			return nil, fmt.Errorf("generation failed: %s", status.Message)
+			return nil, fmt.Errorf("generation failed: %s (error: %s)", status.Error)
 		}
 
 		time.Sleep(delay)
